@@ -2,40 +2,69 @@
 <html lang="fa">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>جداکننده لینک از متن</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Link Extractor Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main class="container">
-    <h1>جداکننده لینک از متن</h1>
-
-    <label for="inputText">متن خود را اینجا بچسبانید:</label>
-    <textarea id="inputText" rows="8" placeholder="متن شامل لینک‌ها، Markdown یا تگ‌های &lt;a&gt;."></textarea>
-
-    <div class="controls">
-      <button id="extractBtn">جدا کن</button>
-      <button id="clearBtn">پاک کن</button>
-    </div>
-
-    <section class="results">
-      <div class="box">
-        <h2>لینک‌های شناسایی‌شده</h2>
-        <ul id="linksList" class="list"></ul>
-        <button id="copyLinks">کپی لینک‌ها</button>
+  <div class="page-shell">
+    <header class="topbar">
+      <div class="brand-wrap">
+        <div class="logo">L</div>
+        <div>
+          <p class="eyebrow">Link Extraction Utility</p>
+          <h1>Link Extractor Pro</h1>
+        </div>
       </div>
+      <button id="loadSampleBtn" class="ghost-btn">نمونه متن</button>
+    </header>
 
-      <div class="box">
-        <h2>باقی‌مانده متن (بدون لینک)</h2>
-        <pre id="remainingText" class="remaining"></pre>
-        <button id="copyText">کپی متن</button>
-      </div>
-    </section>
+    <main class="app-card">
+      <section class="panel input-panel">
+        <div class="panel-head">
+          <h2>متن ورودی</h2>
+          <span class="badge">Live</span>
+        </div>
 
-    <footer>
-      <small>توجه: این ابزار از قوانین سادهٔ regex استفاده می‌کند. برای حالات پیچیده‌تر ممکن است نیاز به بهینه‌سازی باشد.</small>
-    </footer>
-  </main>
+        <textarea id="inputText" spellcheck="false" placeholder="متن خود را اینجا وارد کنید...\nمثلاً: برای اطلاعات بیشتر به https://example.com مراجعه کنید یا [این صفحه](https://example.com) را ببینید."></textarea>
+
+        <div class="action-row">
+          <button id="extractBtn" class="primary-btn">جدا کردن لینک‌ها</button>
+          <button id="clearBtn" class="secondary-btn">پاک کردن</button>
+        </div>
+      </section>
+
+      <section class="panel output-panel">
+        <div class="panel-head stats-row">
+          <h2>نتایج</h2>
+          <div class="stat-pill"><span id="linkCount">0</span> لینک</div>
+        </div>
+
+        <div class="results-grid">
+          <div class="result-box">
+            <div class="box-header">
+              <h3>لینک‌های کشف‌شده</h3>
+              <button id="copyLinks" class="mini-btn">کپی</button>
+            </div>
+            <ul id="linksList" class="link-list">
+              <li class="empty-state">هیچ لینکی پیدا نشده است.</li>
+            </ul>
+          </div>
+
+          <div class="result-box">
+            <div class="box-header">
+              <h3>متن بدون لینک</h3>
+              <button id="copyText" class="mini-btn">کپی</button>
+            </div>
+            <pre id="remainingText" class="remaining-text">متن شما به‌صورت خودکار در اینجا نمایش داده می‌شود.</pre>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
 
   <script src="script.js"></script>
 </body>
