@@ -19,7 +19,11 @@
           <h1>Link Extractor Pro</h1>
         </div>
       </div>
-      <button id="loadSampleBtn" class="ghost-btn">نمونه متن</button>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <button id="loadSampleBtn" class="ghost-btn">نمونه متن</button>
+        <input id="fileInput" type="file" accept=".txt" style="display:none" />
+        <button id="chooseFileBtn" class="ghost-btn">بارگذاری فایل .txt</button>
+      </div>
     </header>
 
     <main class="app-card">
@@ -47,7 +51,11 @@
           <div class="result-box">
             <div class="box-header">
               <h3>لینک‌های کشف‌شده</h3>
-              <button id="copyLinks" class="mini-btn">کپی</button>
+              <div>
+                <button id="copyLinks" class="mini-btn">کپی</button>
+                <button id="exportCsv" class="mini-btn">صادر کردن CSV</button>
+                <button id="exportJson" class="mini-btn">صادر کردن JSON</button>
+              </div>
             </div>
             <ul id="linksList" class="link-list">
               <li class="empty-state">هیچ لینکی پیدا نشده است.</li>
@@ -66,6 +74,7 @@
     </main>
   </div>
 
+  <script src="lib/extract.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
