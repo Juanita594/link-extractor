@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="fa">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>جداکننده لینک از متن</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>جداکننده لینک از متن</h1>
+
+    <label for="inputText">متن خود را اینجا بچسبانید:</label>
+    <textarea id="inputText" rows="8" placeholder="متن شامل لینک‌ها، Markdown یا تگ‌های &lt;a&gt;."></textarea>
+
+    <div class="controls">
+      <button id="extractBtn">جدا کن</button>
+      <button id="clearBtn">پاک کن</button>
+    </div>
+
+    <section class="results">
+      <div class="box">
+        <h2>لینک‌های شناسایی‌شده</h2>
+        <ul id="linksList" class="list"></ul>
+        <button id="copyLinks">کپی لینک‌ها</button>
+      </div>
+
+      <div class="box">
+        <h2>باقی‌مانده متن (بدون لینک)</h2>
+        <pre id="remainingText" class="remaining"></pre>
+        <button id="copyText">کپی متن</button>
+      </div>
+    </section>
+
+    <footer>
+      <small>توجه: این ابزار از قوانین سادهٔ regex استفاده می‌کند. برای حالات پیچیده‌تر ممکن است نیاز به بهینه‌سازی باشد.</small>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
