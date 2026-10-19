@@ -1,104 +1,132 @@
-// ساده و بدون کتابخانه؛ کار با متن، استخراج لینک‌ها و نمایش
 const input = document.getElementById('inputText');
 const extractBtn = document.getElementById('extractBtn');
 const clearBtn = document.getElementById('clearBtn');
+const loadSampleBtn = document.getElementById('loadSampleBtn');
 const linksList = document.getElementById('linksList');
 const remainingText = document.getElementById('remainingText');
+const linkCount = document.getElementById('linkCount');
 const copyLinksBtn = document.getElementById('copyLinks');
 const copyTextBtn = document.getElementById('copyText');
 
+const sampleText = `برای اطلاعات بیشتر به https://example.com مراجعه کنید.
+همچنین می‌توانید [صفحه رسمی](https://example.org) یا <a href="https://docs.example.com">مستندات</a> را ببینید.
+این متن برای تست است و لینک‌های تکراری مثل https://example.com هم در آن وجود دارد.`;
+
+function normalizeUrl(raw) {
+  return raw.trim().replace(/[.,;!?)]$/g, '');
+}
+
 function extractLinksAndText(text) {
-  if (!text) return { links: [], remaining: '' };
+  if (!text || !text.trim()) {
+    return { links: [], remaining: '' };
+  }
 
   const links = [];
   let working = text;
 
-  const aRegex = /<a\b[^>]*href=(?:'|")([^'"]+)(?:'|")[^>]*>([\s\S]*?)<\/a>/gi;
-  working = working.replace(aRegex, (m, href) => {
-    links.push(href);
+  const anchorRegex = /<a\b[^>]*href=(?:['"])([^'"]+)(?:['"])\s*[^>]*>(.*?)<\/a>/gi;
+  working = working.replace(anchorRegex, (_, href) => {
+    const normalized = normalizeUrl(href);
+    if (!links.includes(normalized)) links.push(normalized);
     return '';
   });
 
-  const mdRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/gi;
-  working = working.replace(mdRegex, (m, _t, href) => {
-    links.push(href);
+  const markdownRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/gi;
+  working = working.replace(markdownRegex, (_, __, href) => {
+    const normalized = normalizeUrl(href);
+    if (!links.includes(normalized)) links.push(normalized);
     return '';
   });
 
-  const urlRegex = /((https?:\/\/|www\.)[^\s<>"'`]+)/gi;
-  working = working.replace(urlRegex, (m) => {
-    links.push(m);
+  const rawUrlRegex = /((https?:\/\/|www\.)[^\s<>'"`]+[\w/])/gi;
+  working = working.replace(rawUrlRegex, (match) => {
+    const normalized = normalizeUrl(match);
+    if (!links.includes(normalized)) links.push(normalized);
     return '';
   });
 
-  const remaining = working.replace(/\s{2,}/g, ' ').trim();
+  const remaining = working
+    .replace(/\s{3,}/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 
-  const seen = new Set();
-  const uniqueLinks = [];
-  for (const l of links) {
-    const normalized = l.trim();
-    if (!seen.has(normalized)) {
-      seen.add(normalized);
-      uniqueLinks.push(normalized);
-    }
-  }
-
-  return { links: uniqueLinks, remaining };
+  return { links, remaining };
 }
 
 function renderResults({ links, remaining }) {
   linksList.innerHTML = '';
-  if (links.length === 0) {
+
+  if (!links.length) {
     const li = document.createElement('li');
-    li.textContent = '(هیچ لینکی پیدا نشد)';
+    li.className = 'empty-state';
+    li.textContent = 'هیچ لینکی پیدا نشده است.';
     linksList.appendChild(li);
   } else {
-    for (const l of links) {
-      const li = document.createElement('li');
-      const a = document.createElement('a');
-      a.href = l.startsWith('http') ? l : '//' + l;
-      a.target = '_blank';
-      a.rel = 'noopener noreferrer';
-      a.textContent = l;
-      li.appendChild(a);
-      linksList.appendChild(li);
-    }
+    links.forEach((link) => {
+      const item = document.createElement('li');
+      const anchor = document.createElement('a');
+      anchor.href = link.startsWith('http') ? link : `https://${link}`;
+      anchor.target = '_blank';
+      anchor.rel = 'noopener noreferrer';
+      anchor.textContent = link;
+      item.appendChild(anchor);
+      linksList.appendChild(item);
+    });
   }
 
-  remainingText.textContent = remaining || '(متنی باقی نمانده)';
+  linkCount.textContent = String(links.length);
+  remainingText.textContent = remaining || 'متن شما به‌صورت خودکار در اینجا نمایش داده می‌شود.';
 }
 
-extractBtn.addEventListener('click', () => {
+function handleExtract() {
   const text = input.value;
-  const res = extractLinksAndText(text);
-  renderResults(res);
+  const result = extractLinksAndText(text);
+  renderResults(result);
+}
+
+extractBtn.addEventListener('click', handleExtract);
+loadSampleBtn.addEventListener('click', () => {
+  input.value = sampleText;
+  handleExtract();
 });
 
 clearBtn.addEventListener('click', () => {
   input.value = '';
-  linksList.innerHTML = '';
-  remainingText.textContent = '';
+  renderResults({ links: [], remaining: '' });
 });
 
 copyLinksBtn.addEventListener('click', async () => {
-  const items = Array.from(linksList.querySelectorAll('a')).map(a => a.textContent);
-  const text = items.join('\n');
+  const links = Array.from(linksList.querySelectorAll('a')).map((item) => item.textContent.trim());
+  if (!links.length) {
+    return;
+  }
+
   try {
-    await navigator.clipboard.writeText(text);
+    await navigator.clipboard.writeText(links.join('\n'));
     copyLinksBtn.textContent = 'کپی شد ✓';
-    setTimeout(()=> copyLinksBtn.textContent = 'کپی لینک‌ها', 1200);
-  } catch (e) {
-    alert('کپی ناموفق: ' + e);
+    setTimeout(() => {
+      copyLinksBtn.textContent = 'کپی';
+    }, 1200);
+  } catch (error) {
+    alert('کپی لینک‌ها ناموفق بود.');
   }
 });
 
 copyTextBtn.addEventListener('click', async () => {
-  const text = remainingText.textContent;
+  if (!remainingText.textContent || remainingText.textContent.includes('به‌صورت خودکار')) {
+    return;
+  }
+
   try {
-    await navigator.clipboard.writeText(text);
+    await navigator.clipboard.writeText(remainingText.textContent);
     copyTextBtn.textContent = 'کپی شد ✓';
-    setTimeout(()=> copyTextBtn.textContent = 'کپی متن', 1200);
-  } catch (e) {
-    alert('کپی ناموفق: ' + e);
+    setTimeout(() => {
+      copyTextBtn.textContent = 'کپی';
+    }, 1200);
+  } catch (error) {
+    alert('کپی متن ناموفق بود.');
   }
 });
+
+input.addEventListener('input', handleExtract);
+renderResults({ links: [], remaining: '' });
